@@ -40,7 +40,7 @@ pub fn GameBoard() type {
       const height = self.height;
       const width = self.width;
       var i: usize = 0;
-      adjMatrix.deinit();
+      adjMatrix.clearAndFree();
     
       while(i < height) : (i += 1) {
         try adjMatrix.append(ArrayList(Cell.Cell).init(self.allocator));
@@ -54,12 +54,12 @@ pub fn GameBoard() type {
 
     fn init_adj_list(self: *Self) void {
       var adjList = &self.adjList;
-      adjList.deinit();
+      adjList.clearAndFree();
     }
 
     fn init_node_list(self: *Self) void {
       var nodeList = &self.nodeList;
-      nodeList.deinit();
+      nodeList.clearAndFree();
     }
 
     fn init_board(self: *Self, startX: usize, startY: usize, isVerticale: bool, per: f64) !Self {
@@ -80,7 +80,6 @@ pub fn GameBoard() type {
       var adjList = &self.adjList;
       var nodeList = &self.nodeList;
       var adjMatrix = &self.adjMatrix;
-      var n = ArrayList(LNode).init(self.allocator);
       var rnd = RndGen.init(0);
       var queue: Queue = Queue{};
       queue.append(&Queue.Node{.data = LNode{
@@ -122,8 +121,8 @@ pub fn GameBoard() type {
         if (front.isV) {
           const newY = front.y;
           const end = newY + 5;
-          var k: usize = @intCast(usize, newY);
           const x = @intCast(usize, front.x);
+          var k: usize = @intCast(usize, newY);
 
           while (k < end) : (k += 1) {
             if (k == newY + 1) {
@@ -143,8 +142,8 @@ pub fn GameBoard() type {
         } else {
           const newX = front.x;
           const end = newX + 5;
-          var k: usize = @intCast(usize, newX);
           const y = @intCast(usize, front.y);
+          var k: usize = @intCast(usize, newX);
 
           while (k < end) : (k += 1) {
             if (k == newX + 1) {
@@ -177,11 +176,12 @@ pub fn GameBoard() type {
             .prev = @intCast(i32, adjList.items.len - 1),
           };
 
+          var n = ArrayList(LNode).init(self.allocator);
           try n.append(lNode);
           try n.append(lNode);
           try n.append(lNode);
           n.items[1].isMid = !n.items[1].isMid;
-          n.items[2].isV = !n.items[2].isV;
+          n.items[2].dir = !n.items[2].dir;
 
           for (n.items) |*vNode| {
             if (vNode.*.isMid) {
